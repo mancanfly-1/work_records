@@ -172,7 +172,8 @@ def sys_switch(old, pid):
 3. 如果该进程不是处于PROC_RUNNING状态，则设置该进程的状态为PROC_ZOMBIE，并将该进程从就绪队列中删除。<br>
 可以看出，sys_kill并没有释放pid对应进程的数据结构，只是对killed属性进行了设置，同时进程当前判断状态，来设置kill后的状态。规约中和实现的表述是一致的。
 
-- sys_reparent（reparent操作的含义是将当前pid进程的父亲进程指定为INITPID，pid为要reparent的进程id）
+---
+#### sys_reparent（reparent操作的含义是将当前pid进程的父亲进程指定为INITPID，pid为要reparent的进程id）
 1. 判断pid是否合法，如果合法，获取pid对应的进程；否则退出
 2. 判断pid对应的进程状态是否合法(非PROC_ZOMBIE),同时，INITPID进程的状态也不能为PROC_RUNNABLE和PROC_RUNNING两种状态
 3. INITPID的nr_children++;pid对应的父进程的nr_children--
