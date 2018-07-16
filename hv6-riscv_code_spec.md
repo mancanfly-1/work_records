@@ -502,6 +502,27 @@ struct intremap {
 };
 ```
 
+### 文件系统相关函数
+文件syscalls在fd.c中定义和实现。riscv中并没有对这部分内容进行任何更改。<br>
+sys_create<br>
+sys_close<br>
+sys_dup<br>
+sys_dup2<br>
+sys_lseek<br>
+
+### IPC
+IPC相关syscalls定义在ipc.c中，riscv中并没有对这部分内容进行任何更改<br>
+sys_send<br>
+sys_recv<br>
+send_recv<br>
+sys_reply_wait<br>
+sys_call<br>
+
+### IO
+IO相关系统调用在ioport.c中定义和实现，riscv中并没有对这部分内容进行任何更改<br>
+sys_alloc_io_bitmap<br>
+sys_alloc_port<br>
+sys_reclaim_port<br>
 ----
 ### 总结
     由于riscv与x86 page_table_entry的不同syscalls中主要修改了page_table的各个标识位。
@@ -510,8 +531,6 @@ struct intremap {
 - 非叶子page_table节点中的标识位发生变化：PTE_XWR_MASK = PTE_W | PTE_X | PTE_R，这几个位必须为0；
 - riscv中更改了hvm，用于保存当前context和trap帧。这部分内容修改了程序，但在规约中没有体现；
 - 新添加了sys_map_page方法用于对内核代码进行映射。
-- 使用BBL代替原有的bootloader
-- 
 
 ### 学习过程中查询了相关信息
 - 程序在编译过程中的链接地址是物理地址还是虚拟地址？还是都不是？
