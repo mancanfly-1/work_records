@@ -36,6 +36,71 @@
             move sp, a0
             j __trapret
         ```
+        ```asm
+            # SAVE_ALL要保存的相关信息
+            .macro SAVE_ALL
+            LOCAL _restore_kernel_sp
+            LOCAL _save_context
+        
+            # If coming from userspace, preserve the user stack pointer and load
+            # the kernel stack pointer. If we came from the kernel, sscratch
+            # will contain 0, and we should continue on the current stack.
+            csrrw sp, sscratch, sp
+            bnez sp, _save_context
+        
+        _restore_kernel_sp:
+            csrr sp, sscratch
+        _save_context:
+            addi sp, sp, -36 * REGBYTES
+            # save x registers
+            STORE x0, 0*REGBYTES(sp)
+            STORE x1, 1*REGBYTES(sp)
+            STORE x3, 3*REGBYTES(sp)
+            STORE x4, 4*REGBYTES(sp)
+            STORE x5, 5*REGBYTES(sp)
+            STORE x6, 6*REGBYTES(sp)
+            STORE x7, 7*REGBYTES(sp)
+            STORE x8, 8*REGBYTES(sp)
+            STORE x9, 9*REGBYTES(sp)
+            STORE x10, 10*REGBYTES(sp)
+            STORE x11, 11*REGBYTES(sp)
+            STORE x12, 12*REGBYTES(sp)
+            STORE x13, 13*REGBYTES(sp)
+            STORE x14, 14*REGBYTES(sp)
+            STORE x15, 15*REGBYTES(sp)
+            STORE x16, 16*REGBYTES(sp)
+            STORE x17, 17*REGBYTES(sp)
+            STORE x18, 18*REGBYTES(sp)
+            STORE x19, 19*REGBYTES(sp)
+            STORE x20, 20*REGBYTES(sp)
+            STORE x21, 21*REGBYTES(sp)
+            STORE x22, 22*REGBYTES(sp)
+            STORE x23, 23*REGBYTES(sp)
+            STORE x24, 24*REGBYTES(sp)
+            STORE x25, 25*REGBYTES(sp)
+            STORE x26, 26*REGBYTES(sp)
+            STORE x27, 27*REGBYTES(sp)
+            STORE x28, 28*REGBYTES(sp)
+            STORE x29, 29*REGBYTES(sp)
+            STORE x30, 30*REGBYTES(sp)
+            STORE x31, 31*REGBYTES(sp)
+        
+            # get sr, epc, badvaddr, cause
+            # Set sscratch register to 0, so that if a recursive exception
+            # occurs, the exception vector knows it came from the kernel
+            csrrw s0, sscratch, x0
+            csrr s1, sstatus
+            csrr s2, sepc
+            csrr s3, 0x143
+            csrr s4, scause
+        
+            STORE s0, 2*REGBYTES(sp)
+            STORE s1, 32*REGBYTES(sp)
+            STORE s2, 33*REGBYTES(sp)
+            STORE s3, 34*REGBYTES(sp)
+            STORE s4, 35*REGBYTES(sp)
+            .endm
+        ```
         - set_csr(sstatus, SSTATUS_SUM);/* Allow kernel to access user memory */
         - set_csr(sie, MIP_SSIP); // sie(中断寄存器)允许键盘中断。但是ssip是软中断的意思啊！应该是允许软中断。typora m本地编辑。
     - hvm_init      // 通过hvm来保存上下文信息，以及在切换的时候，保存寄存器中信息。
@@ -155,3 +220,8 @@ sscratch：Set sscratch register to 0, indicating to exception vector that we ar
 5. 拷贝page_table。这个过程需要调用系统调用sys_alloc_pdpt、sys_alloc_pd、sys_alloc_pt和sys_alloc_frame。即完整的拷贝四级页表
 6. 设置申请的进程为runnable状态后，返回。<br>
 由于fork是在用户空间调用的，所以，调用的系统调用是通过ulib库完成的，ulib库中的对应系统调用函数要访问usys.S中的对应调用，这些调用实现的方式是通过ecall命令，trap到supervisor。
+
+## compare to x86
+- 中断处理
+    x86通过中断向量表struct gate_desc idt[256]来维护中断信息和中断处理函数。使用svm helper处理外部中断。
+- 
