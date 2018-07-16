@@ -20,7 +20,7 @@ class KernelState(BaseStruct):
     io = IO()
     intremaps = Intremap()
     
-    current = Map(pid_t)                                # 当前运行的进程
+    current = Map(pid_t)                               g # 当前运行的进程
     iotlbinv = Map(bool_t)                              # 是否刷新iotlb
 
     def flush_iotlb(self):
@@ -305,7 +305,7 @@ pfn = PTE_ADDR(entries[index]) >> PAGE_SHIFT;
 entries[index] = (pfn << PTE_PFN_SHIFT) | perm;
 hvm_invalidate_tlb(current);
 ```
-说明：PTE_PFN_SHIFT与x86是不一致的，10位，在x86中是12位。在判断的过程中，要求对应page table的type是PAGE_TYPE_X86_PT, 这也应该修改一下，毕竟是在riscv下。归于中关于PAGE_SHIFT的判断也存在不同。
+说明：PTE_PFN_SHIFT与x86是不一致的，10位，在x86中是12位。在判断的过程中，要求对应page table的type是PAGE_TYPE_X86_PT, 这也应该修改一下，毕竟是在riscv下。规约中关于PAGE_SHIFT的判断也存在不同。
 
 ---
 #### sys_map_proc（将proc结构体所在的page映射到指定页上）
@@ -396,16 +396,26 @@ int map_page(pid_t pid, pn_t from_pn, size_t index, pn_t pfn, pte_t perm, enum p
 ```
 ---
 #### sys_free_pdpt
+```c
+return free_page_table_page(from, index, to, PAGE_TYPE_X86_PML4, PAGE_TYPE_X86_PDPT);
+```
 
 ---
 #### sys_free_pd
+```c
+return free_page_table_page(from, index, to, PAGE_TYPE_X86_PDPT, PAGE_TYPE_X86_PD);
+```
 
 ---
 #### sys_free_pt
-
+```c
+return free_page_table_page(from, index, to, PAGE_TYPE_X86_PD, PAGE_TYPE_X86_PT);
+```
 ---
 #### sys_free_frame
-
+```c
+return free_page_table_page(from, index, to, PAGE_TYPE_X86_PT, PAGE_TYPE_FRAME);
+```
 ---
 
 #### free_page_table_page
