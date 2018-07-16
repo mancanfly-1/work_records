@@ -20,7 +20,7 @@ class KernelState(BaseStruct):
     io = IO()
     intremaps = Intremap()
     
-    current = Map(pid_t)                               g # 当前运行的进程
+    current = Map(pid_t)                               	# 当前运行的进程
     iotlbinv = Map(bool_t)                              # 是否刷新iotlb
 
     def flush_iotlb(self):
