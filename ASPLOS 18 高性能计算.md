@@ -46,7 +46,7 @@ DAC: Datasize-aware auto-tuning Computing.<br>
 ## DAC 方法
 - 定义：DAC是一种配置调整方法，针对于一个给定集群上的指定的Spark程序，它可以自动的调节配置参数来优化性能。
 - Spark program：使用相近的数据集作为输入，重复的运行多次程序。但是这些数据集的内容是不同的。
-![DAC 工作流程](/Pictures/DAC_Block_Diagram.png)<br>
+![DAC 工作流程](/images/DAC_Block_Diagram.png)<br>
 上图中，介绍了DAC的三个组成部件，其中Collecting生成一些配置信息，通过生成的配置自动的运行IMC程序，并收集执行时间相关经验; modeling部件负责构建performance模型，它将高维配置参数和输入的数据集size作为参数，形成一个function。主要创新是DAC可以生成大量参数的performance模型，这是以前的自动调节方法没有的; searching部件自动的查找能够生成最秀performance的配置。整体上，modeling部件依赖于collecting部件的结果，searching部件通过modeling部件的输出结果中选择最佳配置。
 - Collecting Data
     收集数据的目的是为了根据收集信息在Modeling部件中构建精准性能模型。对于给定的Spark程序，主要收集的性能数据包括如下：<br>
@@ -58,7 +58,7 @@ DAC: Datasize-aware auto-tuning Computing.<br>
     对performance进行建模，针对于响应面，人工神经网络，支持向量机和随机深林算法在构建精准模型的时候都失败了。作者认为高维度配置参数和数据集输入带来了建模的复杂性。over-fitting问题在统计推理和机器学习算法中都是普遍存在的，所以作者提出了Hierarchical Modeling方法。其关键思想是通过多个简单模型来预测performance，而不是通过一个复杂的模型来预测。下面是对该方法的解释，不想看了。以后有机会再看。但是给出了思想，就是通过多个简单模型来代替单个复杂模型。
 - Searching Optimal Configuration
     有很多搜索复杂配置空间的算法，如递归随机查找，模式匹配和遗传算法等。最终，作者选择了遗传算法作为复杂配置空间搜索算法, 相关描述如下图：
-![搜索最优配置](/images/config_searching.png)
+![搜索最优配置](/images/Config_Searching.png)
 
 - 实现
     - 使用了R语言实现CG
