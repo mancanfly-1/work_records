@@ -47,7 +47,7 @@ pages: 0x80e4b000<br>
 
 ### 进程管理代码分析
 #### 进程数据结构和规约对比
-![image](/home/zhangqiang/Pictures/Code_Proc.png)
+![image](/images/Code_Proc.png)
 ![image](/home/zhangqiang/Pictures/Spec_Proc.png)<br>
 两者重要的区别是hvm虽然是一个页，但在code中有详细的数据结构，这需要我们自己来维护。而x86中是由虚拟化技术来实现的。
 #### sys_clone(pid_t pid, pn_t pml4, pn_t stack, pn_t hvm)(clone_proc):this is called by sys_clone in entry.S.
