@@ -7,6 +7,7 @@ Cluster Computering: 集群计算<br>
 periodic long job：daily，weekly computing，如以周为周期的计算。<br>
 RDD：Resilient Distributed Datasets
 DAG: Directed acyclic graph
+DAC: Datasize-aware auto-tuning Computing.<br>
 首先介绍了IMC比ODC所拥有的性能优势，10X；但是IMC同样存在着挑战，主要包含两个方面：<br>
 - IMC的性能与输入数据数组的大小有很大关系，但是却很难将其加入到性能模型中去；
 - IMC中关键性能的配置参数很多，40多个，这也需要很复杂的数学模型才能达到高精度。
@@ -43,6 +44,26 @@ DAG: Directed acyclic graph
         分析建模、统计推理和机器学习技术在构建性能模型中被使用，他们主要用于配置参数。通过实验分析得到，已经存在的建模技术，对于数据集和41个配置参数作为输入参数时，当前这些技术不能够精确的构建性能模型。
 
 ## DAC 方法
+- 定义：DAC是一种配置调整方法，针对于一个给定集群上的指定的Spark程序，它可以自动的调节配置参数来优化性能。
+- Spark program：使用相近的数据集作为输入，重复的运行多次程序。但是这些数据集的内容是不同的。
+![DAC 工作流程](/Pictures/DAC_Block_Diagram.png)<br>
+上图中，介绍了DAC的三个组成部件，其中Collecting生成一些配置信息，通过生成的配置自动的运行IMC程序，并收集执行时间相关经验; modeling部件负责构建performance模型，它将高维配置参数和输入的数据集size作为参数，形成一个function。主要创新是DAC可以生成大量参数的performance模型，这是以前的自动调节方法没有的; searching部件自动的查找能够生成最秀performance的配置。整体上，modeling部件依赖于collecting部件的结果，searching部件通过modeling部件的输出结果中选择最佳配置。
+- Collecting Data
+    收集数据的目的是为了根据收集信息在Modeling部件中构建精准性能模型。对于给定的Spark程序，主要收集的性能数据包括如下：<br>
+    - configuration信息：作者开发了一个CG(Configuration Generator)，负责生成配置信息，它以一个向量的方式来表示。conf*i* = {c*i1*,c*i2*,...,c*ij*,...,c*in*}。其中n=41，代表有41个配置参数，这些参数可以从table 2中获取。
+    - Dataset信息：通过DG(dataset generator)生成m个输入dataset，这m个dataset包含不等的大小，size大小的范围最少要大于10%。m的默认值设置为10
+    - program-pairs: 将10个dataset和对应的程序组成程序对。
+    使用K个不同的configuration信息，运行10个程序对；当一个程序对结束后，创建一个向量存储执行时间和相应的配置。
+- Modeling Performance
+    对performance进行建模，针对于响应面，人工神经网络，支持向量机和随机深林算法在构建精准模型的时候都失败了。作者认为高维度配置参数和数据集输入带来了建模的复杂性。over-fitting问题在统计推理和机器学习算法中都是普遍存在的，所以作者提出了Hierarchical Modeling方法。其关键思想是通过多个简单模型来预测performance，而不是通过一个复杂的模型来预测。下面是对该方法的解释，不想看了。以后有机会再看。但是给出了思想，就是通过多个简单模型来代替单个复杂模型。
+- Searching Optimal Configuration
+    有很多搜索复杂配置空间的算法，如递归随机查找，模式匹配和遗传算法等。最终，作者选择了遗传算法作为复杂配置空间搜索算法, 相关描述如下图：
+![搜索最优配置](/images/config_searching.png)
+
+- 实现
+    - 使用了R语言实现CG
+    - CG生成随机值后，将随机值和配置参数写入到配置文件spark-dac.conf中。
+    - 接下，根据配置文件执行程序，当执行完成后，收集执行时间，并将其与参数配置，input dataset组成定义中定义的向量存储。重复这一过程来收集训练数据集。通过算法1来构建性能模型，也是用R来实现的。最后，通过GA来完成最优的配置的选择。
 
 ## 实验方法
     实验平台包含六个DELL服务器，一个master node，五个slave node。每台服务器是12个处理器，每个处理器6个核心，64G内存。OS是libnux enterprise server 12. spark为V1.6
