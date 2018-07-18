@@ -9,7 +9,7 @@ RDD：Resilient Distributed Datasets<br>
 DAG: Directed acyclic graph<br>
 DAC: Datasize-aware auto-tuning Computing.<br>
 首先介绍了IMC比ODC所拥有的性能优势，10X；但是IMC同样存在着挑战，主要包含两个方面：<br>
-- IMC的性能与输入数据数组的大小有很大关系，但是却很难将其加入到性能模型中去；
+- IMC的性能与输入数据数组的大小有很大关系，但是却很难将其加入到性能模型中去；*是将整个数组作为参数，还是只是数组的大小呢？*
 - IMC中关键性能的配置参数很多，40多个，这也需要很复杂的数学模型才能达到高精度。
     
 解决方法简介：<br>
