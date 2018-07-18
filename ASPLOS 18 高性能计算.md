@@ -5,8 +5,8 @@ IMC：In-Memory cluster Computing, 代表是Spark<br>
 ODC: On-Disk cluster Computimng, 代表是MapReduce/Hadoop，Dryad<br>
 Cluster Computering: 集群计算<br>
 periodic long job：daily，weekly computing，如以周为周期的计算。<br>
-RDD：Resilient Distributed Datasets
-DAG: Directed acyclic graph
+RDD：Resilient Distributed Datasets<br>
+DAG: Directed acyclic graph<br>
 DAC: Datasize-aware auto-tuning Computing.<br>
 首先介绍了IMC比ODC所拥有的性能优势，10X；但是IMC同样存在着挑战，主要包含两个方面：<br>
 - IMC的性能与输入数据数组的大小有很大关系，但是却很难将其加入到性能模型中去；
